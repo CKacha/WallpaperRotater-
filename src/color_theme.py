@@ -11,8 +11,24 @@ def save_original(root: tk.Tk):
     _original_theme = ttk.Style(root).theme_use()
     _original_bg = root.cget('bg')
 
+# letting random hues be picked was a bad idea, too many of them suck sob 
+# COLOR WHEEL I TRUST YOU 
+_GOOD_HUES = [
+    0.60,  # blue
+    0.67,  # indigo
+    0.75,  # purple
+    0.83,  # violet
+    0.93,  # rose
+    0.00,  # red
+    0.08,  # orange
+    0.45,  # mint
+    0.50,  # teal
+    0.54,  # cyan
+]
+
 def generate_palette() -> dict:
-    hue = random.random()
+    base = random.choice(_GOOD_HUES)
+    hue = (base + random.uniform(-0.02, 0.02)) % 1.0
 
     r, g, b = colorsys.hsv_to_rgb(hue, 0.15, 0.18)
     bg = _hex(r, g, b)
@@ -75,3 +91,32 @@ def reset_theme(root: tk.Tk):
 
 def _hex(r, g, b) -> str:
     return '#{:02x}{:02x}{:02x}'.format(int(r * 255), int(g * 255), int(b * 255))
+
+def _luminance(color: str) -> float:
+    color = color.lstrip('#')
+    r, g, b = (int(color[i:i+2], 16) / 255 for i in (0, 2, 4))
+    def lin(c): return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+    return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b)
+
+
+def _contrast(c1: str, c2: str) -> float:
+    l1, l2 = _luminance(c1), _luminance(c2)
+    hi, lo = max(l1, l2), min(l1, l2)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def _ensure_contrast(color: str, against: str, target: float = 4.5) -> str:
+    """Brighten color until it meets the target contrast ratio against the bg."""
+    h, s, v = colorsys.rgb_to_hsv(*(_luminance_decode(color)))
+    for _ in range(20):
+        if _contrast(color, against) >= target:
+            break
+        v = min(1.0, v + 0.04)
+        r, g, b = colorsys.hsv_to_rgb(h, s, v)
+        color = _hex(r, g, b)
+    return color
+
+
+def _luminance_decode(color: str):
+    color = color.lstrip('#')
+    return tuple(int(color[i:i+2], 16) / 255 for i in (0, 2, 4))
