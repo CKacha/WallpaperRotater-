@@ -1,0 +1,28 @@
+tldr choose a folder, ensure there are only _x_ file types (idk what file types windows wallpaper takes) 
+
+then rotate between each photo 
+    randomly
+    in an order
+
+with an interval of time
+    random
+    fixed
+
+https://learn.microsoft.com/en-us/windows/configuration/background/?tabs=intune&pivots=windows-11
+
+https://stackoverflow.com/questions/8414635/how-do-i-change-my-windows-desktop-wallpaper-programmatically
+
+ofc its gonna be stack overflow LMAOOO
+
+https://stackoverflow.com/questions/8414635/how-do-i-change-my-windows-desktop-wallpaper-programmatically
+
+libaries used:
+https://docs.python.org/3/library/ctypes.html
+https://docs.python.org/3/library/os.html <- I need to figure out the random stuff this thing does 
+random is random and simple idk what more to say
+pathlib <- double check if that thing does what I think it does
+https://docs.python.org/3/library/ctypes.html 
+https://docs.python.org/3/library/threading.html simple enough use this to run the program
+
+https://docs.python.org/3/library/tkinter.html
+i think I can use this to get the program working on mac & linux?
