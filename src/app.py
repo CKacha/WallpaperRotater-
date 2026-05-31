@@ -24,6 +24,8 @@ class App:
         self.tray_icon = None
         self._build_ui()
         self._center()
+        if HAS_TRAY:
+            self._start_tray()
 
     def _build_ui(self):
         notebook = ttk.Notebook(self.root)
@@ -47,10 +49,9 @@ class App:
         if HAS_TRAY:
             messagebox.showinfo(
                 "Running",
-                f"Rotating {count} image(s).\n\nThe app is now in your system tray.\nRight-click the tray icon to stop.",
+                f"Rotating {count} image(s).\n\nThe app will keep running in your system tray.",
             )
             self.root.withdraw()
-            self._start_tray()
         else:
             messagebox.showinfo("Running", f"Rotating {count} image(s).\nClose this window to stop.")
 
@@ -66,18 +67,31 @@ class App:
         menu = pystray.Menu(
             pystray.MenuItem("Wallpaper Rotator", None, enabled=False),
             pystray.Menu.SEPARATOR,
-            pystray.MenuItem("Open Settings", self._show_settings),
-            pystray.MenuItem("Stop & Exit",   self._quit),
+            pystray.MenuItem("Open", self._show_window, default=True),
+            pystray.MenuItem(
+                "Stop Rotating",
+                self._stop_rotating,
+                enabled=lambda item: self.rotator.running,
+            ),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem("Exit", self._quit),
         )
-        self.tray_icon = pystray.Icon("WallpaperRotator", self._make_tray_image(), "Wallpaper Rotator", menu)
+        self.tray_icon = pystray.Icon(
+            "WallpaperRotator", self._make_tray_image(), "Wallpaper Rotator", menu
+        )
         threading.Thread(target=self.tray_icon.run, daemon=True).start()
 
-    def _show_settings(self, icon=None, item=None):
-        self.rotator.stop()
-        if self.tray_icon:
-            self.tray_icon.stop()
-            self.tray_icon = None
+    def _show_window(self, icon=None, item=None):
         self.root.after(0, self.root.deiconify)
+
+    def _stop_rotating(self, icon=None, item=None):
+        self.rotator.stop()
+
+    def _on_close(self):
+        if HAS_TRAY:
+            self.root.withdraw()
+        else:
+            self._quit()
 
     def _quit(self, icon=None, item=None):
         self.rotator.stop()
@@ -86,5 +100,5 @@ class App:
         self.root.after(0, self.root.destroy)
 
     def run(self):
-        self.root.protocol("WM_DELETE_WINDOW", self._quit)
+        self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.root.mainloop()
