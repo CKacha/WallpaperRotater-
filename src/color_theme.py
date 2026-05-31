@@ -26,9 +26,10 @@ _GOOD_HUES = [
     0.54,  # cyan
 ]
 
-def generate_palette() -> dict:
-    base = random.choice(_GOOD_HUES)
-    hue = (base + random.uniform(-0.02, 0.02)) % 1.0
+def generate_palette(hue=None) -> dict:
+    if hue is None:
+        base = random.choice(_GOOD_HUES)
+        hue = (base + random.uniform(-0.02, 0.02)) % 1.0
 
     r, g, b = colorsys.hsv_to_rgb(hue, 0.15, 0.18)
     bg = _hex(r, g, b)
@@ -115,6 +116,12 @@ def _ensure_contrast(color: str, against: str, target: float = 4.5) -> str:
         r, g, b = colorsys.hsv_to_rgb(h, s, v)
         color = _hex(r, g, b)
     return color
+
+
+def palette_from_color(hex_color: str) -> dict:
+    r, g, b = _luminance_decode(hex_color)
+    h, _, _ = colorsys.rgb_to_hsv(r, g, b)
+    return generate_palette(hue=h)
 
 
 def _luminance_decode(color: str):

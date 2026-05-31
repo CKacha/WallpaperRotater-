@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import filedialog, ttk
-from .color_theme import generate_palette, apply_theme, reset_theme
+from tkinter.colorchooser import askcolor
+from .color_theme import generate_palette, apply_theme, reset_theme, palette_from_color
 
 class SettingsTab(ttk.Frame):
     def __init__(self, parent, root: tk.Tk, **kwargs):
@@ -24,11 +25,13 @@ class SettingsTab(ttk.Frame):
         self._preview = tk.Canvas(color_frame, height=20, bd=0, highlightthickness=0)
         self._preview.pack(fill='x', pady=(0, 10))
         self._preview.bind('<Configure>', lambda _: self._draw_preview())
+        self._preview_default_bg = self._preview.cget('bg')
 
         btn_row = ttk.Frame(color_frame)
         btn_row.pack(fill='x')
-        ttk.Button(btn_row, text="Randomize Now",   command=self._randomize).pack(side='left', padx=(0, 8))
-        ttk.Button(btn_row, text="Reset to Default", command=self._reset).pack(side='left')
+        ttk.Button(btn_row, text="Randomize Now",    command=self._randomize).pack(side='left', padx=(0, 8))
+        ttk.Button(btn_row, text="Pick Color",        command=self._pick_color).pack(side='left', padx=(0, 8))
+        ttk.Button(btn_row, text="Reset to Default",  command=self._reset).pack(side='left')
 
         sound_frame = ttk.LabelFrame(self, text="Sound", padding=12)
         sound_frame.pack(fill='x', padx=12, pady=5)
@@ -99,10 +102,21 @@ class SettingsTab(ttk.Frame):
         self._preview.configure(bg=self._palette['field_bg'])
         self._draw_preview()
 
+    def _pick_color(self):
+        result = askcolor(title="Pick a color — the full palette is derived from its hue")
+        if result[1] is None:
+            return
+        self._palette = palette_from_color(result[1])
+        self._enabled_var.set(True)
+        apply_theme(self._root, self._palette)
+        self._preview.configure(bg=self._palette['field_bg'])
+        self._draw_preview()
+
     def _reset(self):
         self._palette = None
+        self._enabled_var.set(False)
         reset_theme(self._root)
-        self._preview.configure(bg='')
+        self._preview.configure(bg=self._preview_default_bg)
         self._draw_preview()
 
     def _draw_preview(self):
