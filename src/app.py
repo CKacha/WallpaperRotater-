@@ -29,8 +29,9 @@ class App:
         notebook = ttk.Notebook(self.root)
         notebook.pack(fill='both', expand=True, padx=8, pady=8)
 
-        self.main_tab = MainTab(notebook, self.rotator, on_start=self._handle_start)
         self.settings_tab = SettingsTab(notebook, self.root)
+        self.main_tab = MainTab(notebook, self.rotator, on_start=self._handle_start,
+                                sound_getter=lambda: self.settings_tab.sound_file)
 
         notebook.add(self.main_tab,     text="  Rotator  ")
         notebook.add(self.settings_tab, text="  Settings  ")

@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import filedialog, ttk
 from .color_theme import generate_palette, apply_theme, reset_theme
 
 class SettingsTab(ttk.Frame):
@@ -29,6 +29,63 @@ class SettingsTab(ttk.Frame):
         btn_row.pack(fill='x')
         ttk.Button(btn_row, text="Randomize Now",   command=self._randomize).pack(side='left', padx=(0, 8))
         ttk.Button(btn_row, text="Reset to Default", command=self._reset).pack(side='left')
+
+        sound_frame = ttk.LabelFrame(self, text="Sound", padding=12)
+        sound_frame.pack(fill='x', padx=12, pady=5)
+
+        self._sound_var = tk.BooleanVar(value=False)
+        ttk.Checkbutton(
+            sound_frame,
+            text="Play sound on wallpaper change",
+            variable=self._sound_var,
+            command=self._on_sound_toggle,
+        ).pack(anchor='w')
+
+        self._sound_opts = ttk.Frame(sound_frame)
+
+        self._sound_type_var = tk.StringVar(value='system')
+        type_row = ttk.Frame(self._sound_opts)
+        type_row.pack(fill='x', pady=(8, 0))
+        ttk.Radiobutton(type_row, text="System sound", variable=self._sound_type_var,
+                        value='system', command=self._on_sound_type).pack(side='left', padx=(0, 16))
+        ttk.Radiobutton(type_row, text="Custom .wav",  variable=self._sound_type_var,
+                        value='custom', command=self._on_sound_type).pack(side='left')
+
+        self._wav_row = ttk.Frame(self._sound_opts)
+        self._wav_var = tk.StringVar()
+        ttk.Entry(self._wav_row, textvariable=self._wav_var, width=32).pack(side='left', fill='x', expand=True)
+        ttk.Button(self._wav_row, text="Browse…", command=self._browse_wav).pack(side='left', padx=(6, 0))
+
+    def _on_sound_toggle(self):
+        if self._sound_var.get():
+            self._sound_opts.pack(fill='x')
+            self._on_sound_type()
+        else:
+            self._wav_row.pack_forget()
+            self._sound_opts.pack_forget()
+
+    def _on_sound_type(self):
+        if self._sound_type_var.get() == 'custom':
+            self._wav_row.pack(fill='x', pady=(6, 0))
+        else:
+            self._wav_row.pack_forget()
+
+    def _browse_wav(self):
+        path = filedialog.askopenfilename(
+            title="Select sound file",
+            filetypes=[("WAV files", "*.wav"), ("All files", "*.*")],
+        )
+        if path:
+            self._wav_var.set(path)
+
+    @property
+    def sound_file(self):
+        if not self._sound_var.get():
+            return None
+        if self._sound_type_var.get() == 'system':
+            return ''
+        path = self._wav_var.get().strip()
+        return path if path else None
 
     def _on_toggle(self):
         if self._enabled_var.get():

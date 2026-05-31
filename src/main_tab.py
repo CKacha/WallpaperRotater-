@@ -5,10 +5,11 @@ from .constants import SUPPORTED_EXTENSIONS
 from .rotator import WallpaperRotator
 
 class MainTab(ttk.Frame):
-    def __init__(self, parent, rotator: WallpaperRotator, on_start, **kwargs):
+    def __init__(self, parent, rotator: WallpaperRotator, on_start, sound_getter=None, **kwargs):
         super().__init__(parent, **kwargs)
         self._rotator = rotator
         self._on_start = on_start
+        self._sound_getter = sound_getter
         self._build()
 
     def _build(self):
@@ -96,6 +97,7 @@ class MainTab(ttk.Frame):
             fixed_secs=fixed_secs,
             min_secs=min_secs,
             max_secs=max_secs,
+            sound_file=self._sound_getter() if self._sound_getter else None,
         )
 
         if count == 0:
