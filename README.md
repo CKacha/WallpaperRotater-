@@ -40,3 +40,7 @@ This installs dependencies and builds a standalone `WallpaperRotator.exe` into t
 
 ## Supported file formats atm:
 `.jpg` `.jpeg` `.png` `.bmp` `.gif` `.tiff` `.tif` `.dib`
+
+# AI usage:
+
+Did had to ask claude to figure out how the heck background processes work! (it was so pmo)
