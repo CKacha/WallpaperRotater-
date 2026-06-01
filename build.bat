@@ -8,6 +8,8 @@ pyinstaller ^
     --onefile ^
     --windowed ^
     --name WallpaperRotator ^
+    --icon=icon.ico ^
+    --add-data "icon.ico;." ^
     --hidden-import=pystray._win32 ^
     --hidden-import=PIL._tkinter_finder ^
     main.py

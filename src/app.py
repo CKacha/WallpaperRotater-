@@ -1,6 +1,8 @@
+import sys
 import threading
 import tkinter as tk
 from tkinter import messagebox, ttk
+from pathlib import Path
 
 try:
     import pystray
@@ -8,6 +10,10 @@ try:
     HAS_TRAY = True
 except ImportError:
     HAS_TRAY = False
+
+def _resource(filename):
+    base = Path(getattr(sys, '_MEIPASS', Path(__file__).parent.parent))
+    return base / filename
 
 from .rotator import WallpaperRotator
 from .color_theme import save_original
@@ -56,6 +62,9 @@ class App:
             messagebox.showinfo("Running", f"Rotating {count} image(s).\nClose this window to stop.")
 
     def _make_tray_image(self):
+        icon_path = _resource('icon.ico')
+        if icon_path.exists():
+            return Image.open(icon_path)
         img = Image.new('RGBA', (64, 64), (0, 0, 0, 0))
         d = ImageDraw.Draw(img)
         d.rectangle([2,  2,  62, 62], fill=(30, 120, 220), outline=(255, 255, 255), width=3)
